@@ -33,6 +33,15 @@ module.exports = function(grunt) {
       default_options: {
         src: ['tasks/*.js'],
       },
+      makeTodosMed : {
+        options : {
+            priorities : {
+                low : null,
+                med : /(TODO|FIXME)/
+            }
+        },
+        src: ['tasks/*.js'],
+      }
     },
 
     // Unit tests.
