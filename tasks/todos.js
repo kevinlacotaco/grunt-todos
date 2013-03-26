@@ -10,10 +10,6 @@ module.exports = function(grunt) {
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
-    function log (msg) {
-        grunt.log.writeln(msg);
-    }
-
     grunt.registerMultiTask('todos', 'Find and print todos/fixmes as tasks in code.', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
@@ -32,6 +28,10 @@ module.exports = function(grunt) {
             high : 'red'
         },
         syntax;
+
+        function log (msg) {
+            grunt.log.writeln(msg);
+        }
 
         //TODO: new format for reporting
         function logComment(file, comment) {
