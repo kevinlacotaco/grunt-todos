@@ -38,7 +38,7 @@ grunt.initConfig({
 ### Options
 
 #### options.priorities
-Type: `Object`  
+Type: `Object`
 Default value: `{ low : /TODO/, med : /FIXME/, high : null }`
 
 An object that specifies what the various priorities are for the target.
@@ -46,10 +46,10 @@ High will add to the errorCount.
 
 
 #### options.verbose
-Type: `Boolean`  
+Type: `Boolean`
 Default value: `true`
 
-Verbose mode will cause the plugin to report on every file, regardles if there are actual lines to report or not. If set to false, only files with todos will be mentioned.
+Verbose mode will cause the plugin to report on every file, regardless if there are actual lines to report or not. If set to false, only files with todos will be mentioned.
 
 ### Usage Examples
 
