@@ -34,16 +34,28 @@ module.exports = function(grunt) {
         }
 
         //TODO: new format for reporting
-        function logComment(file, comment) {
-            _.each(options.priorities, function(regex, priority) {
-                if (!_.isNull(regex) && regex.test(comment.value)) {
-                    //Matches a priority
-                    log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + comment.value[colors[priority]]);
-                    if(priority === 'high') {
-                        errors++;
+        function logComment(todo) {
+            var comment = todo.comment,
+                priority = todo.priority;
+
+            log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]]);
+            if(priority === 'high') {
+                errors++;
+            }
+        }
+
+        function getTodos(comments) {
+            var todos = [];
+
+            comments.forEach(function(comment) {
+                _.each(options.priorities, function(regex, priority) {
+                    if (!_.isNull(regex) && regex.test(comment.value)) {
+                        todos.push({ priority : priority, comment : comment });
                     }
-                }
+                });
             });
+
+            return todos;
         }
 
         // Iterate over all specified file groups.
@@ -60,11 +72,13 @@ module.exports = function(grunt) {
                 // Read file source.
                 syntax = esprima.parse(grunt.file.read(filepath), { comment : true, tolerant : true, loc : true });
                 log('Tasks found in: '.white + filepath.green);
-                if(syntax.comments.length === 0) {
+                var todos = getTodos(syntax.comments);
+
+                if(todos.length === 0) {
                     log('    No tasks found!');
                 } else {
-                    syntax.comments.forEach(function(comment) {
-                        logComment(filepath, comment);
+                    _.each(todos, function(todo) {
+                        logComment(todo);
                     });
                 }
             });
