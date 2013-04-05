@@ -32,7 +32,7 @@ exports.todos = {
 
     var actual = grunt.file.read('tmp/default_options');
     var expected = grunt.file.read('test/expected/default_options');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
+    test.equal(actual, expected, 'TODO is low priority.');
 
     test.done();
   },
@@ -41,8 +41,17 @@ exports.todos = {
 
     var actual = grunt.file.read('tmp/custom_options');
     var expected = grunt.file.read('test/expected/custom_options');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
+    test.equal(actual, expected, 'TODO is med priority.');
 
     test.done();
   },
+  verbose_false: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/verbose_false');
+    var expected = grunt.file.read('test/expected/verbose_false');
+    test.equal(actual, expected, 'Files without tasks should not print.');
+
+    test.done();
+  }
 };

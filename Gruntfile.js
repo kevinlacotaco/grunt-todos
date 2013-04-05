@@ -31,16 +31,37 @@ module.exports = function(grunt) {
     // Configuration to be run (and then tested).
     todos: {
       default_options: {
-        src: ['tasks/*.js'],
+        files: {
+            'tmp/default_options' : ['test/fixtures/*.js']
+        }
       },
-      makeTodosMed : {
+      custom_options : {
         options : {
             priorities : {
                 low : null,
                 med : /(TODO|FIXME)/
             }
         },
-        src: ['tasks/*.js'],
+        files: {
+            'tmp/custom_options' : ['test/fixtures/*.js']
+        }
+      },
+      verbose_false : {
+        options : {
+            verbose : false
+        },
+        files: {
+            'tmp/verbose_false' : ['test/fixtures/*.js']
+        }
+      },
+      console : {
+        src : ['test/fixtures/*.js']
+      },
+      console_verbose_false : {
+        options : {
+            verbose : false
+        },
+        src : ['test/fixtures/*.js']
       }
     },
 

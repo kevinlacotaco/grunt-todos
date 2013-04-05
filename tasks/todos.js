@@ -30,10 +30,6 @@ module.exports = function(grunt) {
         },
         syntax;
 
-        function log (msg) {
-            grunt.log.writeln(msg);
-        }
-
         function getTodos(comments) {
             var todos = [];
 
@@ -55,7 +51,7 @@ module.exports = function(grunt) {
 
         // Iterate over all specified file groups.
         this.files.forEach(function(f) {
-            f.src.filter(function(filepath) {
+            var tasks = f.src.filter(function(filepath) {
                 // Warn on and remove invalid source files (if nonull was set).
                 if (!grunt.file.exists(filepath)) {
                     grunt.log.warn('Source file "' + filepath + '" not found.');
@@ -64,25 +60,36 @@ module.exports = function(grunt) {
                     return true;
                 }
             }).map(function(filepath) {
+                var log = '', todos;
                 // Read file source.
                 syntax = esprima.parse(grunt.file.read(filepath), { comment : true, tolerant : true, loc : true });
-                var todos = getTodos(syntax.comments);
+                todos = getTodos(syntax.comments);
 
                 if (todos.length === 0) {
-                    if (options.verbose === true) {
-                        log('Tasks found in: '.white + filepath.green);
-                        log('    ' + 'No tasks found.'.white);
+                    if (options.verbose) {
+                        log += 'Tasks found in: '.white + filepath.green + '\n';
+                        log += '    ' + 'No tasks found!'.white + '\n';
                     }
                 } else {
-                    log('Tasks found in: '.white + filepath.green);
+                    log += 'Tasks found in: '.white + filepath.green + '\n';
                     todos.forEach(function(todo) {
                         var comment = todo.comment,
                             priority = todo.priority;
 
-                        log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]]);
+                        log += '    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]] + '\n';
                     });
                 }
-            });
+
+                return log;
+            }).join('');
+
+            if(_.isUndefined(f.dest)) {
+                grunt.log.write(tasks);
+            } else {
+                grunt.file.write(f.dest, grunt.log.uncolor(tasks));
+                grunt.log.writeln('File "' + f.dest + '" created.');
+            }
+
         });
 
         if(errors !== 0) {
