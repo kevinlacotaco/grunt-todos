@@ -13,6 +13,7 @@ module.exports = function(grunt) {
     grunt.registerMultiTask('todos', 'Find and print todos/fixmes as tasks in code.', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
+            verbose: true, // false will skip reporting on files without tasks
             priorities : {
                 low : /TODO/, //This will print out blue
                 med : /FIXME/, //This will print out yellow
@@ -22,6 +23,7 @@ module.exports = function(grunt) {
         esprima = require('esprima'),
         _ = grunt.util._,
         errors = 0,
+        comments = [],
         colors = {
             low : 'blue',
             med : 'yellow',
@@ -34,14 +36,14 @@ module.exports = function(grunt) {
         }
 
         //TODO: new format for reporting
-        function logComment(file, comment) {
+        function detectComments(file, comment) {
             _.each(options.priorities, function(regex, priority) {
                 if (!_.isNull(regex) && regex.test(comment.value)) {
                     //Matches a priority
-                    log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + comment.value[colors[priority]]);
                     if(priority === 'high') {
                         errors++;
                     }
+                    comments.push('[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + comment.value[colors[priority]]);
                 }
             });
         }
@@ -59,13 +61,25 @@ module.exports = function(grunt) {
             }).map(function(filepath) {
                 // Read file source.
                 syntax = esprima.parse(grunt.file.read(filepath), { comment : true, tolerant : true, loc : true });
-                log('Tasks found in: '.white + filepath.green);
-                if(syntax.comments.length === 0) {
-                    log('    No tasks found!');
-                } else {
-                    syntax.comments.forEach(function(comment) {
-                        logComment(filepath, comment);
+                comments = []; // reset comment stack
+                
+                if (syntax.comments.length) {
+                  // Find matching lines and report
+                  syntax.comments.forEach(function(comment) {
+                      detectComments(filepath, comment);
+                  });
+                  
+                  if (comments.length === 0) {
+                    if (options.verbose === true) {
+                      log('Tasks found in: '.white + filepath.green);
+                      log('    ' + 'No tasks found.'.white);
+                    }
+                  } else {
+                    log('Tasks found in: '.white + filepath.green);
+                    comments.forEach(function(comment) {
+                        log('    ' + comment);
                     });
+                  }
                 }
             });
         });

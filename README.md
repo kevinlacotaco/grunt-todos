@@ -38,11 +38,18 @@ grunt.initConfig({
 ### Options
 
 #### options.priorities
-Type: `Object`
+Type: `Object`  
 Default value: `{ low : /TODO/, med : /FIXME/, high : null }`
 
 An object that specifies what the various priorities are for the target.
 High will add to the errorCount.
+
+
+#### options.verbose
+Type: `Boolean`  
+Default value: `true`
+
+Verbose mode will cause the plugin to report on every file, regardles if there are actual lines to report or not. If set to false, only files with todos will be mentioned.
 
 ### Usage Examples
 
@@ -59,6 +66,7 @@ grunt.initConfig({
 ```
 
 #### Custom Options
+
 In this example, custom options are used to escalate TODO to med priority.
 
 ```js
@@ -71,6 +79,19 @@ grunt.initConfig({
         }
     },
     src : ['src/testing', 'src/123']
+  }
+})
+```
+
+In this example, we want minimize the total output by setting `verbose` to false.
+
+```js
+grunt.initConfig({
+  todos: {
+    options: {
+        verbose: false
+    },
+    src : ['src/**/*.js']
   }
 })
 ```
