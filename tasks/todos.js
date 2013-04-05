@@ -13,6 +13,7 @@ module.exports = function(grunt) {
     grunt.registerMultiTask('todos', 'Find and print todos/fixmes as tasks in code.', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
+            verbose: true, // false will skip reporting on files without tasks
             priorities : {
                 low : /TODO/, //This will print out blue
                 med : /FIXME/, //This will print out yellow
@@ -33,17 +34,6 @@ module.exports = function(grunt) {
             grunt.log.writeln(msg);
         }
 
-        //TODO: new format for reporting
-        function logComment(todo) {
-            var comment = todo.comment,
-                priority = todo.priority;
-
-            log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]]);
-            if(priority === 'high') {
-                errors++;
-            }
-        }
-
         function getTodos(comments) {
             var todos = [];
 
@@ -51,7 +41,12 @@ module.exports = function(grunt) {
                 _.each(options.priorities, function(regex, priority) {
                     if (!_.isNull(regex) && regex.test(comment.value)) {
                         todos.push({ priority : priority, comment : comment });
+
+                        if(priority === 'high') {
+                            errors++;
+                        }
                     }
+
                 });
             });
 
@@ -71,14 +66,20 @@ module.exports = function(grunt) {
             }).map(function(filepath) {
                 // Read file source.
                 syntax = esprima.parse(grunt.file.read(filepath), { comment : true, tolerant : true, loc : true });
-                log('Tasks found in: '.white + filepath.green);
                 var todos = getTodos(syntax.comments);
 
-                if(todos.length === 0) {
-                    log('    No tasks found!');
+                if (todos.length === 0) {
+                    if (options.verbose === true) {
+                        log('Tasks found in: '.white + filepath.green);
+                        log('    ' + 'No tasks found.'.white);
+                    }
                 } else {
-                    _.each(todos, function(todo) {
-                        logComment(todo);
+                    log('Tasks found in: '.white + filepath.green);
+                    todos.forEach(function(todo) {
+                        var comment = todo.comment,
+                            priority = todo.priority;
+
+                        log('    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]]);
                     });
                 }
             });
