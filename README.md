@@ -83,7 +83,7 @@ grunt.initConfig({
 })
 ```
 
-In this example, we want minimize the total output by setting `verbose` to false.
+In this example, the options will limit the output to report only files that contain tasks.
 
 ```js
 grunt.initConfig({
