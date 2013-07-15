@@ -55,7 +55,7 @@ module.exports = function(grunt) {
         }
       },
       console : {
-        src : ['test/fixtures/*.js']
+        src : ['test/fixtures/*.js', 'test/fixtures/*.less']
       },
       console_verbose_false : {
         options : {
