@@ -11,6 +11,7 @@ module.exports = function(grunt) {
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
     grunt.registerMultiTask('todos', 'Find and print todos/fixmes as tasks in code.', function() {
+        var done = this.async();
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             verbose: true, // false will skip reporting on files without tasks
@@ -20,38 +21,41 @@ module.exports = function(grunt) {
                 high : null //This will print out red and cause grunt to fail
             }
         }),
-        esprima = require('esprima'),
+        grep = require('../lib/grep'),
+        async = require('async'),
         _ = grunt.util._,
-        errors = 0,
         colors = {
             low : 'blue',
             med : 'yellow',
             high : 'red'
-        },
-        syntax;
+        };
 
-        function getTodos(comments) {
-            var todos = [];
-
-            comments.forEach(function(comment) {
-                _.each(options.priorities, function(regex, priority) {
-                    if (!_.isNull(regex) && regex.test(comment.value)) {
-                        todos.push({ priority : priority, comment : comment });
-
-                        if(priority === 'high') {
-                            errors++;
-                        }
-                    }
-
-                });
-            });
-
-            return todos;
+        function getPriority(pattern) {
+            return _.invert(options.priorities)[pattern];
         }
 
-        // Iterate over all specified file groups.
-        this.files.forEach(function(f) {
-            var tasks = f.src.filter(function(filepath) {
+        function printTasks(memo, tasks, file) {
+            if(tasks.length === 0) {
+                if(options.verbose) {
+                    memo += 'Tasks found in: '.white + file.green + '\n';
+                    memo += '    ' + 'No tasks found!'.white + '\n';
+                }
+            } else {
+                memo += 'Tasks found in: '.white + file.green + '\n';
+                tasks.forEach(function(task) {
+                    var priority = getPriority(task.pattern);
+                    memo += '    ' + '[Line: '.bold + task.lineNumber.toString().bold + '] '.bold + '['.bold + priority.toString().bold + '] '.bold + task.line.toString()[colors[priority]] + '\n';
+                });
+            }
+
+            return memo;
+        }
+
+
+        async.each(this.files, function(f, cb) {
+            var files = [];
+
+            f.src.filter(function(filepath) {
                 // Warn on and remove invalid source files (if nonull was set).
                 if (!grunt.file.exists(filepath)) {
                     grunt.log.warn('Source file "' + filepath + '" not found.');
@@ -59,44 +63,73 @@ module.exports = function(grunt) {
                 } else {
                     return true;
                 }
-            }).map(function(filepath) {
-                var log = '', todos;
-                // Read file source.
-                syntax = esprima.parse(grunt.file.read(filepath), { comment : true, tolerant : true, loc : true });
-                todos = getTodos(syntax.comments);
+            }).forEach(function(file) {
+                files.push(file);
+            });
 
-                if (todos.length === 0) {
-                    if (options.verbose) {
-                        log += 'Tasks found in: '.white + filepath.green + '\n';
-                        log += '    ' + 'No tasks found!'.white + '\n';
+            async.series([
+                function(cb) {
+                    if(!_.isUndefined(options.priorities.low) && !_.isNull(options.priorities.low)) {
+                        grep.grep(options.priorities.low, files, cb);
+                    } else {
+                        cb();
                     }
-                } else {
-                    log += 'Tasks found in: '.white + filepath.green + '\n';
-                    todos.forEach(function(todo) {
-                        var comment = todo.comment,
-                            priority = todo.priority;
-
-                        log += '    ' + '[Line: '.bold + comment.loc.start.line.toString().bold + '] '.bold + '['.bold + priority.bold + '] '.bold + comment.value[colors[priority]] + '\n';
-                    });
+                },
+                function(cb) {
+                    if(!_.isUndefined(options.priorities.med) && !_.isNull(options.priorities.med)) {
+                        grep.grep(options.priorities.med, files, cb);
+                    } else {
+                        cb();
+                    }
+                },
+                function(cb) {
+                    if(!_.isUndefined(options.priorities.high) && !_.isNull(options.priorities.high)) {
+                        grep.grep(options.priorities.high, files, cb);
+                    } else {
+                        cb();
+                    }
                 }
 
-                return log;
-            }).join('');
+            ], function(err, results) {
+                var tasksByFile = _.chain(results)
+                                    .flatten()
+                                    .compact()
+                                    .groupBy('file')
+                                    .value();
 
-            if(_.isUndefined(f.dest)) {
-                grunt.log.write(tasks);
+                var noTaskFiles = _.difference(files, _.keys(tasksByFile));
+
+                _.each(noTaskFiles, function(file) {
+                    tasksByFile[file] = [];
+                });
+
+                var log = _.reduce(tasksByFile, printTasks, '');
+
+                if(_.isUndefined(f.dest)) {
+                    grunt.log.write(log);
+                } else {
+                    grunt.file.write(f.dest, grunt.log.uncolor(log));
+                    grunt.log.writeln('File "' + f.dest + '" created.');
+                }
+
+                if(results.high !== undefined && results.high.length > 0) {
+                    grunt.log.error('Found ' + results.high.length + ' high priority tasks.');
+                    cb(new Error());
+                } else {
+                    cb();
+                }
+
+            });
+
+        }, function(err) {
+            if(err) {
+                done(false);
             } else {
-                grunt.file.write(f.dest, grunt.log.uncolor(tasks));
-                grunt.log.writeln('File "' + f.dest + '" created.');
+                done();
             }
-
         });
 
-        if(errors !== 0) {
-            grunt.log.error('Found ' + errors + ' high priority tasks');
-        }
 
-        return this.errorCount === 0;
 
     });
 
