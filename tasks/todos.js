@@ -19,38 +19,25 @@ module.exports = function(grunt) {
                 low : /TODO/, //This will print out blue
                 med : /FIXME/, //This will print out yellow
                 high : null //This will print out red and cause grunt to fail
-            }
+            },
+            reporter : require('../lib/reporters/default')
         }),
         grep = require('../lib/grep'),
         async = require('async'),
-        _ = grunt.util._,
-        colors = {
-            low : 'blue',
-            med : 'yellow',
-            high : 'red'
-        };
+        _ = grunt.util._;
 
         function getPriority(pattern) {
             return _.invert(options.priorities)[pattern];
         }
 
-        function printTasks(memo, tasks, file) {
-            if(tasks.length === 0) {
-                if(options.verbose) {
-                    memo += 'Tasks found in: '.white + file.green + '\n';
-                    memo += '    ' + 'No tasks found!'.white + '\n';
-                }
-            } else {
-                memo += 'Tasks found in: '.white + file.green + '\n';
-                tasks.forEach(function(task) {
-                    var priority = getPriority(task.pattern);
-                    memo += '    ' + '[Line: '.bold + task.lineNumber.toString().bold + '] '.bold + '['.bold + priority.toString().bold + '] '.bold + task.line.toString()[colors[priority]] + '\n';
-                });
-            }
-
-            return memo;
+        function injectPriority(task) {
+            task.priority = getPriority(task.pattern);
         }
 
+        if (!_.isFunction(options.reporter.fileTasks)) {
+            grunt.fail.fatal('grunt-todos reporter must specify a "fileTasks" function.');
+            done();
+        }
 
         async.each(this.files, function(f, cb) {
             var files = [];
@@ -94,6 +81,7 @@ module.exports = function(grunt) {
                 var tasksByFile = _.chain(results)
                                     .flatten()
                                     .compact()
+                                    .each(injectPriority)
                                     .groupBy('file')
                                     .value();
 
@@ -103,7 +91,22 @@ module.exports = function(grunt) {
                     tasksByFile[file] = [];
                 });
 
-                var log = _.reduce(tasksByFile, printTasks, '');
+                var log = '';
+                var header, footer;
+
+                header = _.isFunction(options.reporter.header) ? options.reporter.header() : '';
+                if (header && !_.isEmpty(header)) {
+                    log += header;
+                }
+
+                _.each(tasksByFile, function (tasks, file) {
+                    log += options.reporter.fileTasks(file, tasks, options);
+                });
+
+                footer = _.isFunction(options.reporter.footer) ? options.reporter.footer() : '';
+                if (footer && !_.isEmpty(footer)) {
+                    log += footer;
+                }
 
                 if(_.isUndefined(f.dest)) {
                     grunt.log.write(log);
