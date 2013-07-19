@@ -96,6 +96,63 @@ grunt.initConfig({
 })
 ```
 
+### Custom Reporters
+
+A custom reporter can be used to change the output of the task.
+
+Reporters have three functions, `header`, `fileTasks`, and `footer`, that should return strings.
+The result of `header` is printed once at the beginning of the task.
+The result of `footer` is printed once at the end of the task.
+The `fileTasks` function is called once for each file that is being scanned.
+
+Printing to the console or to a file is still controlled by the use of the `src` versus `files` options.
+
+```js
+grunt.initConfig({
+  todos: {
+    options: {
+      reporter: {
+        header: function () {
+          return '-- Begin Task List --\n';
+        },
+        fileTasks: function (file, tasks, options) {
+          var result = '';
+          result += 'For ' + file + '\n';
+          tasks.forEach(function (task) {
+            result += '[' + task.lineNumber + ' - ' + task.priority + '] ' + task.line + '\n';
+          });
+          result += '\n';
+          return result;
+        },
+        footer: function () {
+          return '-- End Task List--\n';
+        }
+      }
+    }
+  }
+})
+```
+
+#### `file` Parameter
+Type: `String`
+The path to the file being scanned for tasks.
+
+#### `tasks` Parameter
+Type: `Array`
+Contains the list of tasks found in the file.
+
+An example `tasks` looks like this:
+
+```js
+{
+  file: 'path/to/file.js',
+  lineNumber: 27,
+  priority: 'low', // 'med' or 'high'
+  line: '    // TODO something grand and spectacular',
+  pattern: /\bTODO\b/ // Pattern used to recognize the priority
+}
+```
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
