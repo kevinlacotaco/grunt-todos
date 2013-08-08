@@ -1,7 +1,7 @@
 {
   "name": "grunt-todos",
   "description": "Grunt plugin for finding todos/fixmes in code",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "homepage": "https://github.com/kevinlacotaco/grunt-todos",
   "author": {
     "name": "Kevin Lakotko",
