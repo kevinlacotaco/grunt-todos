@@ -62,6 +62,24 @@ module.exports = function(grunt) {
             verbose : false
         },
         src : ['test/fixtures/*.js']
+      },
+      custom_reporter : {
+        options : {
+          reporter : {
+            header : function () { return '--header--\n'; },
+            footer : function () { return '--footer--\n'; },
+            fileTasks : function (file, tasks, options) {
+              var result = '--file--' + file + '\n';
+              tasks.forEach(function (task) {
+                result += '-' + task.lineNumber + '-' + task.priority + '-' + task.line + '\n';
+              });
+              return result;
+            }
+          },
+        },
+        files: {
+          'tmp/custom_reporter' : ['test/fixtures/*.js']
+        }
       }
     },
 

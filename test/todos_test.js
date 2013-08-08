@@ -53,5 +53,14 @@ exports.todos = {
     test.equal(actual, expected, 'Files without tasks should not print.');
 
     test.done();
+  },
+  custom_reporter: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/custom_reporter');
+    var expected = grunt.file.read('test/expected/custom_reporter');
+    test.equal(actual, expected, 'Customer reporter should match expected value');
+
+    test.done();
   }
 };
