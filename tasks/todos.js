@@ -15,6 +15,8 @@ module.exports = function(grunt) {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             verbose: true, // false will skip reporting on files without tasks
+            encoding : 'utf8', // encoding to read files
+            trim : true, // trim lines
             priorities : {
                 low : /TODO/, //This will print out blue
                 med : /FIXME/, //This will print out yellow
@@ -57,21 +59,21 @@ module.exports = function(grunt) {
             async.series([
                 function(cb) {
                     if(!_.isUndefined(options.priorities.low) && !_.isNull(options.priorities.low)) {
-                        grep.grep(options.priorities.low, files, cb);
+                        grep.grep(options.priorities.low, files, options, cb);
                     } else {
                         cb();
                     }
                 },
                 function(cb) {
                     if(!_.isUndefined(options.priorities.med) && !_.isNull(options.priorities.med)) {
-                        grep.grep(options.priorities.med, files, cb);
+                        grep.grep(options.priorities.med, files, options, cb);
                     } else {
                         cb();
                     }
                 },
                 function(cb) {
                     if(!_.isUndefined(options.priorities.high) && !_.isNull(options.priorities.high)) {
-                        grep.grep(options.priorities.high, files, cb);
+                        grep.grep(options.priorities.high, files, options, cb);
                     } else {
                         cb();
                     }
