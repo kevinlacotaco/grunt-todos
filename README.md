@@ -1,5 +1,7 @@
 # grunt-todos
 
+[![Build Status](https://secure.travis-ci.org/Bartvds/grunt-todos.png?branch=master)](http://travis-ci.org/Bartvds/grunt-todos) [![NPM version](https://badge.fury.io/js/grunt-todos.png)](http://badge.fury.io/js/grunt-todos) [![Dependency Status](https://david-dm.org/Bartvds/grunt-todos.png)](https://david-dm.org/Bartvds/grunt-todos) [![devDependency Status](https://david-dm.org/Bartvds/grunt-todos/dev-status.png)](https://david-dm.org/Bartvds/grunt-todos#info=devDependencies)
+
 > Grunt plugin for finding todos/fixmes in code
 
 ## Getting Started
