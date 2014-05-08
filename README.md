@@ -3,6 +3,7 @@
 > Grunt plugin for finding todos/fixmes in code
 
 ## Getting Started
+
 This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
@@ -20,6 +21,7 @@ grunt.loadNpmTasks('grunt-todos');
 ## The "todos" task
 
 ### Overview
+
 In your project's Gruntfile, add a section named `todos` to the data object passed into `grunt.initConfig()`.
 
 ```js
@@ -38,6 +40,7 @@ grunt.initConfig({
 ### Options
 
 #### options.priorities
+
 Type: `Object`
 Default value: `{ low : /TODO/, med : /FIXME/, high : null }`
 
@@ -46,6 +49,7 @@ High will add to the errorCount.
 
 
 #### options.verbose
+
 Type: `Boolean`
 Default value: `true`
 
@@ -54,6 +58,7 @@ Verbose mode will cause the plugin to report on every file, regardless if there 
 ### Usage Examples
 
 #### Default Options
+
 In this example, the default options are used to find all the TODOs and FIXMEs in the code.
 
 ```js
@@ -134,10 +139,12 @@ grunt.initConfig({
 ```
 
 #### `file` Parameter
+
 Type: `String`
 The path to the file being scanned for tasks.
 
 #### `tasks` Parameter
+
 Type: `Array`
 Contains the list of tasks found in the file.
 
@@ -154,7 +161,10 @@ An example `tasks` looks like this:
 ```
 
 ## Contributing
+
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+
+- `v0.3.x` - adopted for updates & fixes by Bart van der Schoor
+- `<= v0.2.x` - original releases by Kevin Lakotko
