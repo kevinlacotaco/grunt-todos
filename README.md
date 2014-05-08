@@ -1,8 +1,11 @@
 # grunt-todos
 
+[![Build Status](https://secure.travis-ci.org/Bartvds/grunt-todos.png?branch=master)](http://travis-ci.org/Bartvds/grunt-todos) [![NPM version](https://badge.fury.io/js/grunt-todos.png)](http://badge.fury.io/js/grunt-todos) [![Dependency Status](https://david-dm.org/Bartvds/grunt-todos.png)](https://david-dm.org/Bartvds/grunt-todos) [![devDependency Status](https://david-dm.org/Bartvds/grunt-todos/dev-status.png)](https://david-dm.org/Bartvds/grunt-todos#info=devDependencies)
+
 > Grunt plugin for finding todos/fixmes in code
 
 ## Getting Started
+
 This plugin requires Grunt `~0.4.0`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
@@ -20,6 +23,7 @@ grunt.loadNpmTasks('grunt-todos');
 ## The "todos" task
 
 ### Overview
+
 In your project's Gruntfile, add a section named `todos` to the data object passed into `grunt.initConfig()`.
 
 ```js
@@ -38,6 +42,7 @@ grunt.initConfig({
 ### Options
 
 #### options.priorities
+
 Type: `Object`
 Default value: `{ low : /TODO/, med : /FIXME/, high : null }`
 
@@ -46,14 +51,31 @@ High will add to the errorCount.
 
 
 #### options.verbose
+
 Type: `Boolean`
 Default value: `true`
 
 Verbose mode will cause the plugin to report on every file, regardless if there are actual lines to report or not. If set to false, only files with todos will be mentioned.
 
+#### options.reporter
+
+Type: `String|Object`
+Default value: `'default'`
+
+Specify a reporter to use. A string value will be resolved first to one of the bundled reporter, otherwise passedto `require()`.
+
+Bundled reporters:
+
+- `default` - classic console reporter.
+- `markdown` - simple markdown format.
+- `path` - console reporter that print full file-paths.
+
+See below for the 'Custom reporter' section on how to create a custom reporter.
+
 ### Usage Examples
 
 #### Default Options
+
 In this example, the default options are used to find all the TODOs and FIXMEs in the code.
 
 ```js
@@ -61,6 +83,21 @@ grunt.initConfig({
   todos: {
     options: {},
     src : ['src/testing', 'src/123']
+  }
+})
+```
+
+#### Save to file
+
+Use the grunt file src/dest convention to write reporter output to a file. 
+
+```js
+grunt.initConfig({
+  todos: {
+    options: {},
+    files: {
+      'path/files.txt': ['src/testing', 'src/123']
+    }
   }
 })
 ```
@@ -134,10 +171,12 @@ grunt.initConfig({
 ```
 
 #### `file` Parameter
+
 Type: `String`
 The path to the file being scanned for tasks.
 
 #### `tasks` Parameter
+
 Type: `Array`
 Contains the list of tasks found in the file.
 
@@ -154,7 +193,16 @@ An example `tasks` looks like this:
 ```
 
 ## Contributing
+
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+
+- `v0.3.x` - adopted for updates & fixes by Bart van der Schoor @Bartvds (2014-05)
+- `<= v0.2.x` - original releases by Kevin Lakotko @kevinlacotaco
+
+## Licence
+
+Copyright (c) 2013 by [Kevin Lakotko](https://github.com/kevinlacotaco).
+
+Licensed under the MIT License. 

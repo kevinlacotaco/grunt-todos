@@ -15,16 +15,33 @@ module.exports = function(grunt) {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             verbose: true, // false will skip reporting on files without tasks
+            encoding : 'utf8', // encoding to read files
+            trim : true, // trim lines
             priorities : {
-                low : /TODO/, //This will print out blue
+                low : /TODO/, //This will print out blues
                 med : /FIXME/, //This will print out yellow
                 high : null //This will print out red and cause grunt to fail
             },
             reporter : require('../lib/reporters/default')
-        }),
-        grep = require('../lib/grep'),
-        async = require('async'),
-        _ = grunt.util._;
+        });
+
+        var grep = require('../lib/grep');
+        var path = require('path');
+        var async = require('async');
+        var _ = grunt.util._;
+
+        var reporter = options.reporter;
+
+        if (_.isString(reporter)) {
+            // check for bundled reporter
+            var p = path.resolve(__dirname, '..', 'lib', 'reporters', reporter + '.js');
+            if (grunt.file.exists(p)) {
+                reporter = require(p);
+            }
+            else {
+                reporter = require(reporter);
+            }
+        }
 
         function getPriority(pattern) {
             return _.invert(options.priorities)[pattern];
@@ -34,7 +51,14 @@ module.exports = function(grunt) {
             task.priority = getPriority(task.pattern);
         }
 
-        if (!_.isFunction(options.reporter.fileTasks)) {
+        function plural(str, num) {
+            if(num === 1) {
+                return str;
+            }
+            return str + 's';
+        }
+
+        if (!_.isFunction(reporter.fileTasks)) {
             grunt.fail.fatal('grunt-todos reporter must specify a "fileTasks" function.');
             done();
         }
@@ -57,21 +81,21 @@ module.exports = function(grunt) {
             async.series([
                 function(cb) {
                     if(!_.isUndefined(options.priorities.low) && !_.isNull(options.priorities.low)) {
-                        grep.grep(options.priorities.low, files, cb);
+                        grep.grep(options.priorities.low, files, options, cb);
                     } else {
                         cb();
                     }
                 },
                 function(cb) {
                     if(!_.isUndefined(options.priorities.med) && !_.isNull(options.priorities.med)) {
-                        grep.grep(options.priorities.med, files, cb);
+                        grep.grep(options.priorities.med, files, options, cb);
                     } else {
                         cb();
                     }
                 },
                 function(cb) {
                     if(!_.isUndefined(options.priorities.high) && !_.isNull(options.priorities.high)) {
-                        grep.grep(options.priorities.high, files, cb);
+                        grep.grep(options.priorities.high, files, options, cb);
                     } else {
                         cb();
                     }
@@ -94,16 +118,16 @@ module.exports = function(grunt) {
                 var log = '';
                 var header, footer;
 
-                header = _.isFunction(options.reporter.header) ? options.reporter.header() : '';
+                header = _.isFunction(reporter.header) ? reporter.header() : '';
                 if (header && !_.isEmpty(header)) {
                     log += header;
                 }
 
                 _.each(tasksByFile, function (tasks, file) {
-                    log += options.reporter.fileTasks(file, tasks, options);
+                    log += reporter.fileTasks(file, tasks, options);
                 });
 
-                footer = _.isFunction(options.reporter.footer) ? options.reporter.footer() : '';
+                footer = _.isFunction(reporter.footer) ? reporter.footer() : '';
                 if (footer && !_.isEmpty(footer)) {
                     log += footer;
                 }
@@ -115,8 +139,19 @@ module.exports = function(grunt) {
                     grunt.log.writeln('File "' + f.dest + '" created.');
                 }
 
-                if(results.high !== undefined && results.high.length > 0) {
-                    grunt.log.error('Found ' + results.high.length + ' high priority tasks.');
+                var high = _.reduce(tasksByFile, function(count, tasks) {
+                    _.forEach(tasks, function(task) {
+                        if (task.priority === 'high') {
+                            count++;
+                        }
+                    });
+                    return count;
+                }, 0);
+
+                if(high > 0) {
+                    grunt.log.writeln('');
+                    grunt.log.error('Found ' + high + ' high priority ' + plural('task',high)+ '.');
+                    grunt.log.writeln('');
                     cb(new Error());
                 } else {
                     cb();
@@ -132,8 +167,5 @@ module.exports = function(grunt) {
             }
         });
 
-
-
     });
-
 };

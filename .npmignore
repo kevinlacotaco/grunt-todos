@@ -1,0 +1,11 @@
+/.idea
+/node_modules
+/npm-debug.log
+/tmp
+/test
+/Gruntfile.js
+/.travis.yml
+/.jshintrc
+/.npmignore
+/.gitignore
+/*.tgz

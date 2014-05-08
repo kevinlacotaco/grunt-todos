@@ -1,5 +1,5 @@
 --header--
 --file--test/fixtures/123.js
--1-low-//TODO: test
+-1-med-//FIXME: test
 --file--test/fixtures/testing.js
 --footer--

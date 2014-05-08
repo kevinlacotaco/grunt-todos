@@ -1,0 +1,7 @@
+Tasks found in: test/fixtures/something.less
+    [Line: 1] [med] // TODO: fill in this less file.
+    [Line: 2] [med] // TODO: another todo
+Tasks found in: test/fixtures/123.js
+    [Line: 1] [high] //FIXME: test
+Tasks found in: test/fixtures/testing.js
+    No tasks found!
