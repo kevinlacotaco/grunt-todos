@@ -57,6 +57,21 @@ Default value: `true`
 
 Verbose mode will cause the plugin to report on every file, regardless if there are actual lines to report or not. If set to false, only files with todos will be mentioned.
 
+#### options.reporter
+
+Type: `String|Object`
+Default value: `'default'`
+
+Specify a reporter to use. A string value will be resolved first to one of the bundled reporter, otherwise passedto `require()`.
+
+Bundled reporters:
+
+- `default` - classic console reporter.
+- `markdown` - simple markdown format.
+- `path` - console reporter that print full file-paths.
+
+See below for the 'Custom reporter' section on how to create a custom reporter.
+
 ### Usage Examples
 
 #### Default Options
@@ -68,6 +83,21 @@ grunt.initConfig({
   todos: {
     options: {},
     src : ['src/testing', 'src/123']
+  }
+})
+```
+
+#### Save to file
+
+Use the grunt file src/dest convention to write reporter output to a file. 
+
+```js
+grunt.initConfig({
+  todos: {
+    options: {},
+    files: {
+      'path/files.txt': ['src/testing', 'src/123']
+    }
   }
 })
 ```
@@ -168,5 +198,11 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
-- `v0.3.x` - adopted for updates & fixes by Bart van der Schoor
-- `<= v0.2.x` - original releases by Kevin Lakotko
+- `v0.3.x` - adopted for updates & fixes by Bart van der Schoor @Bartvds (2014-05)
+- `<= v0.2.x` - original releases by Kevin Lakotko @kevinlacotaco
+
+## Licence
+
+Copyright (c) 2013 by [Kevin Lakotko](https://github.com/kevinlacotaco).
+
+Licensed under the MIT License. 

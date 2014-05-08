@@ -3,14 +3,14 @@
   "description": "Grunt plugin for finding todos/fixmes in code",
   "version": "0.3.0",
   "homepage": "https://github.com/Bartvds/grunt-todos",
-  "authors": [
+  "author":  {
+      "name": "Kevin Lakotko",
+      "email": "klakotko@gmail.com"
+  },
+  "contributors": [
     {
       "name": "Bart van der Schoor",
       "email": "bartvanderschoor@gmail.com"
-    },
-    {
-      "name": "Kevin Lakotko",
-      "email": "klakotko@gmail.com"
     }
   ],
   "repository": {
@@ -39,7 +39,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "mocha-unfunk-reporter": "~0.4.0",
     "grunt-mocha-test": "~0.10.2",
-    "chai": "^1.9.1",
+    "chai": "~1.9.1",
     "grunt-continue": "0.0.1"
   },
   "dependencies": {
